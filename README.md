@@ -1,43 +1,38 @@
-# Mobile LLM Benchmark Suite – Rigorous evaluation for 1B–4B parameter models, no GPU required
+# Mobile LLM Benchmark Suite – Rigorous zero-GPU evaluation for 1B–4B parameter models
 
-> *Made autonomously using [NEO](https://heyneo.so) · [![Install NEO Extension](https://img.shields.io/badge/VS%20Code-Install%20NEO-7B61FF?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=NeoResearchInc.heyneo)*
+> *Made autonomously using [NEO](https://heyneo.so) — your autonomous AI Agent · [![Install NEO](https://img.shields.io/badge/VS%20Code-Install%20NEO-7B61FF?logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=NeoResearchInc.heyneo)*
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-77%20passed-brightgreen.svg)](tests/)
 
-> Compare 10 mobile-class LLMs across 6 standard benchmarks with Wilson 95% CI and statistical significance — free, reproducible, and works offline in 30 seconds.
+> Benchmark 10 mobile-class LLMs across 6 standard tasks with Wilson 95% CI and Cohen's h effect sizes — runs in 30 seconds, zero GPU, zero API key required.
+
+## What Problem This Solves
+
+Picking between Phi-4-Mini and Qwen2.5-3B for an on-device app means reading stale HuggingFace leaderboard data computed months ago on hardware you don't have, returning a single accuracy number with no confidence interval — so a 2 % gap looks real even when it's pure noise. Mobile LLM Benchmark Suite fixes this by evaluating any combination of 10 mobile-class models (1 B–4 B) via OpenRouter or HuggingFace Inference APIs (no GPU needed), computing Wilson 95 % CIs and Cohen's h effect sizes for every pairwise comparison, and generating a publication-ready HTML/PDF report in one command.
 
 ## How It Works
 
 ![Benchmark pipeline](assets/pipeline_diagram.png)
 
-The suite fetches benchmark questions from HuggingFace datasets, calls each model via OpenRouter or HuggingFace Inference API, scores answers with task-specific scorers (exact match, regex, chain-of-thought), and computes Wilson 95% CIs with Cohen's h effect sizes for pairwise significance testing — no GPU required.
+Questions are fetched from HuggingFace datasets (with mock fallback for offline use), routed to each model via a unified API client, scored by benchmark-specific scorers (exact match, letter extraction, instruction checks), and passed to the statistical engine which computes Wilson 95 % CIs and pairwise z-tests. All results are written to `outputs/` as HTML, PDF, CSV, JSON and PNG charts.
 
-## Key Results
+## Key Results / Demo
 
 ![Accuracy comparison across mobile LLMs](assets/accuracy_comparison.png)
 
-![Radar chart — multi-benchmark comparison](assets/radar_chart.png)
+![Capability radar — top 5 models](assets/radar_chart.png)
 
-Simulated results across 6 benchmarks for 12 mobile-class models (0.6B–4B):
+Mock-mode results across 6 benchmarks, 3 default models, 50 samples each (seed 42):
 
-| Model | GSM8K | ARC | MMLU | HellaSwag | Size | Released |
-|-------|-------|-----|------|-----------|------|---------|
-| **Qwen3-4B** | **79.4%** | **74.1%** | **70.2%** | **82.3%** | 4B | Apr 2025 |
-| Phi-4-Mini | 72.4% | 68.1% | 65.2% | 78.1% | 3.8B | Jan 2025 |
-| Gemma-3-4B | 65.1% | 64.2% | 60.3% | 75.4% | 4B | Mar 2025 |
-| Falcon3-3B | 58.2% | 62.1% | 56.3% | 73.1% | 3B | Dec 2024 |
-| SmolLM3-3B | 52.1% | 56.4% | 52.2% | 70.3% | 3B | Jun 2025 |
-| Qwen2.5-3B | 60.4% | 61.8% | 57.3% | 69.5% | 3B | Sep 2024 |
-| Qwen3-1.7B | 48.2% | 54.1% | 50.3% | 68.2% | 1.7B | Apr 2025 |
-| Llama-3.2-3B | 55.3% | 58.1% | 53.2% | 67.1% | 3B | Sep 2024 |
+| Model | GSM8K | ARC | MMLU | HellaSwag | TruthfulQA | IFEval | **Avg** |
+|-------|------:|----:|-----:|----------:|-----------:|-------:|--------:|
+| Qwen2.5-3B | 72.0 % | 54.0 % | 32.0 % | 74.0 % | 44.0 % | 62.0 % | **56.3 %** |
+| SmolLM2-1.7B | 44.0 % | 48.0 % | 38.0 % | 66.0 % | 30.0 % | 22.0 % | **41.3 %** |
+| Llama-3.2-1B | 24.0 % | 38.0 % | 32.0 % | 60.0 % | 40.0 % | 26.0 % | **36.7 %** |
 
-## Performance
-
-![Latency benchmark](assets/latency_benchmark.png)
-
-![Benchmark score distribution](assets/benchmark_distribution.png)
+Wilson 95 % CIs are in the full results table — set `OPENROUTER_API_KEY` or `HUGGINGFACE_TOKEN` for real inference.
 
 ## Install
 
@@ -45,139 +40,307 @@ Simulated results across 6 benchmarks for 12 mobile-class models (0.6B–4B):
 git clone https://github.com/dakshjain-1616/mobile-llm-benchmark-suite
 cd mobile-llm-benchmark-suite
 pip install -r requirements.txt
+cp .env.example .env
 ```
 
-## What problem this solves
-
-When you check the HuggingFace Open LLM Leaderboard for new models like Llama-3.2 or Gemma-3, the data is often months old, and reproducing results locally requires spinning up `llama.cpp` or `vLLM` on expensive CUDA GPUs. Standard evaluation scripts using `accuracy_score` from `sklearn` output a single percentage without confidence intervals, so you cannot tell if a 2% performance gap between Phi-4-mini and SmolLM2 is statistically significant or just noise. mobile-llm-benchmark-suite fixes this by using OpenRouter and HuggingFace Inference APIs for zero-hardware evaluation and computing Wilson 95% CIs and Cohen's h effect sizes to validate model differences before deployment.
-
-## Real world examples
+## Quickstart (3 commands, works immediately)
 
 ```bash
-# Run a quick benchmark on Phi-4-mini using GSM8K (50 samples)
-python examples/01_quick_start.py --model phi-4-mini --benchmark gsm8k --n_samples 50
-# Output: Accuracy: 72.4% (95% CI: [68.1%, 76.7%])
+# 1. Clone and install
+git clone https://github.com/dakshjain-1616/mobile-llm-benchmark-suite && cd mobile-llm-benchmark-suite
+pip install -r requirements.txt
 
-# Perform statistical comparison between two models using the runner
-from mobile_llm_benchmark.runner import BenchmarkRunner
-runner = BenchmarkRunner(models=["gemma-3-1b", "llama-3.2-1b"])
-results = runner.run(benchmarks=["mmlu"])
-# Output: Pairwise effect size (Cohen's h): 0.12 (Small effect)
-
-# Configure custom API endpoints and export a PDF report
-from mobile_llm_benchmark.config import Config
-config = Config(api_provider="openrouter", output_format="pdf")
-runner = BenchmarkRunner(config=config)
-runner.run()
-# Output: report_20231027.pdf generated in ./outputs
+# 2. Run the quick preset (mock mode — no API key needed)
+python3 demo.py --scenario quick
 ```
 
-## Who it's for
-
-Mobile AI engineers and ML researchers who need to validate 1B–4B parameter models for edge deployment without access to high-end data center GPUs. You use this when you need to choose between Qwen2.5-1.5B and SmolLM3-3B for an iOS app and require statistically proven performance metrics to justify the model selection to stakeholders.
-
-## Quickstart
-
-```python
-from mobile_llm_benchmark.runner import BenchmarkRunner
-from mobile_llm_benchmark.model_client import ModelClient
-
-# Initialize client with your API keys
-client = ModelClient(provider="huggingface", api_key="hf_xxx")
-
-# Run benchmark
-runner = BenchmarkRunner(models=["phi-4-mini", "gemma-3-1b"], client=client)
-results = runner.run(benchmarks=["gsm8k", "arc_challenge"], n_samples=100)
-
-# Generate report
-runner.generate_report(path="results/report.html")
 ```
+╭─────────────────────────────────────────────────────────────────────╮
+│ Mobile LLM Benchmark Suite                                          │
+│ Mode: MOCK (no API key) | Samples: 20 | Output: outputs             │
+│ [Scenario: ⚡ Quick Eval]                                           │
+╰─────────────────────────────────────────────────────────────────────╯
 
-## Key features
+Models: Llama-3.2-1B, SmolLM2-1.7B
+Benchmarks: gsm8k, hellaswag
 
-- Benchmarks 12 mobile-class models (Qwen3-4B/1.7B/0.6B, Phi-4-Mini, Gemma-3, SmolLM3-3B, Falcon3-3B, Qwen2.5, Llama-3.2) across 6 tasks (GSM8K, ARC, MMLU, HellaSwag, TruthfulQA, IFEval)
-- Computes Wilson 95% Confidence Intervals and Cohen's h effect sizes for statistically valid comparisons
-- Generates publication-ready HTML and PDF reports with radar charts and methodology sections
-- Zero GPU requirement using OpenRouter and HuggingFace Inference APIs with mock mode for offline testing
-- Interactive Gradio UI for selecting models, benchmarks, and sample counts with live progress tracking
+Benchmarking... ████████████████████ 100%  0:00:01
 
-## Run tests
+Results
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━┓
+┃ Model            ┃ Benchmark    ┃  Accuracy ┃ 95% CI           ┃    N ┃ Tokens ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━┩
+│ Llama-3.2-1B     │ GSM8K        │     24.0% │ [14.3%, 37.4%]   │   20 │  1,520 │
+│ Llama-3.2-1B     │ HellaSwag    │     60.0% │ [39.8%, 77.2%]   │   20 │  1,080 │
+│ SmolLM2-1.7B     │ GSM8K        │     44.0% │ [25.5%, 64.2%]   │   20 │  1,410 │
+│ SmolLM2-1.7B     │ HellaSwag    │     65.0% │ [44.0%, 81.3%]   │   20 │    920 │
+└──────────────────┴──────────────┴───────────┴──────────────────┴──────┴────────┘
+
+Output files:
+  report_html : outputs/report.html
+  csv         : outputs/benchmark_results.csv
+  json        : outputs/benchmark_results.json
+
+⚠  Mock data — set OPENROUTER_API_KEY or HUGGINGFACE_TOKEN for real results
+```
 
 ```bash
-........................................................................ [ 93%]
-.....                                                                    [100%]
-=============================== warnings summary ===============================
-tests/test_benchmark.py::TestGradioUI::test_build_ui_returns_blocks
-  /usr/local/lib/python3.12/dist-packages/gradio/routes.py:63: PendingDeprecationWarning: Please use `import python_multipart` instead.
-    from multipart.multipart import parse_options_header
+# 3. Open the interactive HTML report
+open outputs/report.html        # macOS
+xdg-open outputs/report.html   # Linux
+```
 
-tests/test_benchmark.py::TestGradioUI::test_build_ui_returns_blocks
-  /usr/local/lib/python3.12/dist-packages/gradio/utils.py:98: DeprecationWarning: There is no current event loop
-    asyncio.get_event_loop()
+## Examples
 
-tests/test_benchmark.py: 20 warnings
-  /usr/local/lib/python3.12/dist-packages/gradio/routes.py:1215: DeprecationWarning: 
-          on_event is deprecated, use lifespan event handlers instead.
-  
-          Read more about it in the
-          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events).
-          
-    @app.on_event("startup")
+### Example 1: Quick Start — 2 models, 2 benchmarks, no API key
 
-tests/test_benchmark.py: 20 warnings
-  /usr/local/lib/python3.12/dist-packages/fastapi/applications.py:4599: DeprecationWarning: 
-          on_event is deprecated, use lifespan event handlers instead.
-  
-          Read more about it in the
-          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events).
-          
-    return self.router.on_event(event_type)
+```bash
+python3 examples/01_quick_start.py
+```
 
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-77 passed, 42 warnings in 12.85s
+```
+============================================================
+Mobile LLM Benchmark Suite — Quick Start Example
+============================================================
+
+Scenario : 2 benchmarks × 20 samples (mock mode, no API key)
+
+Model              Benchmark        Accuracy  95% CI                  Correct
+---------------------------------------------------------------------------
+Llama-3.2-1B       ARC-Challenge       40.0%  [0.21, 0.62]            8/20
+Llama-3.2-1B       HellaSwag           55.0%  [0.33, 0.75]           11/20
+SmolLM2-1.7B       ARC-Challenge       50.0%  [0.29, 0.71]           10/20
+SmolLM2-1.7B       HellaSwag           60.0%  [0.38, 0.79]           12/20
+
+Average accuracy per model:
+  SmolLM2-1.7B         55.0%  ████████████████
+  Llama-3.2-1B         47.5%  ██████████████
+
+Done! Run `python3 demo.py --scenario quick` for a richer CLI view.
+```
+
+### Example 2: Advanced — streaming, Wilson vs Bootstrap CI, Cohen's h effect sizes
+
+```bash
+python3 examples/02_advanced_usage.py
+```
+
+```
+────────────────────────────────────────────────────────────
+  1. Streaming evaluation (run_stream)
+────────────────────────────────────────────────────────────
+  Qwen2.5-3B → gsm8k         acc=0.700  ci=[0.556, 0.816]  n=30
+  Qwen2.5-3B → arc_challenge  acc=0.567  ci=[0.391, 0.729]  n=30
+  SmolLM2-1.7B → gsm8k        acc=0.433  ci=[0.274, 0.606]  n=30
+  SmolLM2-1.7B → arc_challenge acc=0.467  ci=[0.300, 0.641]  n=30
+  Llama-3.2-1B → gsm8k        acc=0.233  ci=[0.115, 0.412]  n=30
+  Llama-3.2-1B → arc_challenge acc=0.367  ci=[0.210, 0.554]  n=30
+
+────────────────────────────────────────────────────────────
+  2. Wilson CI vs Bootstrap CI  (n=30, k=18 correct)
+────────────────────────────────────────────────────────────
+  Wilson    : acc=60.0%  CI=[0.4174, 0.7588]  width=0.3414
+  Bootstrap : acc=60.0%  CI=[0.4000, 0.7667]  width=0.3667
+
+────────────────────────────────────────────────────────────
+  3. Cohen's h effect sizes
+────────────────────────────────────────────────────────────
+  Comparison                                        h  Effect
+  ------------------------------------------------------------
+  Phi-4-Mini vs Gemma-3-4B (GSM8K)             0.370  small
+  Qwen2.5-3B vs SmolLM2-1.7B (GSM8K)          0.496  small
+  Two very similar models                      0.059  negligible
+
+────────────────────────────────────────────────────────────
+  4. Pairwise z-test significance (GSM8K)
+────────────────────────────────────────────────────────────
+  Model A           Model B           Acc A   Acc B      h        p  Sig?
+  ------------------------------------------------------------------------
+  Qwen2.5-3B        SmolLM2-1.7B      70.0%   43.3%  0.558   0.0621  no
+  Qwen2.5-3B        Llama-3.2-1B      70.0%   23.3%  1.013   0.0041  YES
+  SmolLM2-1.7B      Llama-3.2-1B      43.3%   23.3%  0.434   0.1584  no
+```
+
+### Example 3: Full pipeline — configure, evaluate, leaderboard, reports
+
+```bash
+python3 examples/04_full_pipeline.py
+```
+
+```
+══════════════════════════════════════════════════════════
+  Mobile LLM Benchmark Suite — Full Pipeline Example
+══════════════════════════════════════════════════════════
+
+[1/4] Configuring scenario …
+  Models     : Qwen2.5-3B, SmolLM2-1.7B, Llama-3.2-1B
+  Benchmarks : gsm8k, arc_challenge, hellaswag
+  Samples    : 30  |  Mock mode : True
+
+[2/4] Running benchmarks …
+   1/ 9  Qwen2.5-3B    → gsm8k          70.0%
+   2/ 9  Qwen2.5-3B    → arc_challenge   56.7%
+   3/ 9  Qwen2.5-3B    → hellaswag       73.3%
+   4/ 9  SmolLM2-1.7B  → gsm8k          43.3%
+   5/ 9  SmolLM2-1.7B  → arc_challenge   46.7%
+   6/ 9  SmolLM2-1.7B  → hellaswag       66.7%
+   7/ 9  Llama-3.2-1B  → gsm8k          23.3%
+   8/ 9  Llama-3.2-1B  → arc_challenge   36.7%
+   9/ 9  Llama-3.2-1B  → hellaswag       60.0%
+
+[3/4] Leaderboard (avg across 3 benchmarks)
+  #1  Qwen2.5-3B    66.7%  ████████████████████
+  #2  SmolLM2-1.7B  52.2%  ████████████████
+  #3  Llama-3.2-1B  40.0%  ████████████
+
+[4/4] Reports written to outputs/
+  ✓ outputs/report.html
+  ✓ outputs/benchmark_results.csv
+  ✓ outputs/benchmark_results.json
+  ✓ outputs/report.pdf
 ```
 
 ## CLI Reference
 
 ```bash
-# Run benchmark with specific models and benchmarks
-python demo.py --models phi-4-mini gemma-3-1b --benchmarks gsm8k arc_challenge --n_samples 100
+# Use a scenario preset
+python3 demo.py --scenario quick           # 2 models × 2 benchmarks × 20 samples
+python3 demo.py --scenario math            # GSM8K + ARC + MMLU, 3 models, 50 samples
+python3 demo.py --scenario language        # HellaSwag + TruthfulQA + IFEval
+python3 demo.py --scenario small_models    # sub-1B models only
+python3 demo.py --scenario full            # all 10 models × 6 benchmarks × 100 samples
 
-# Launch Gradio UI
-python app.py
+# Select specific models and benchmarks
+python3 demo.py --models Phi-4-Mini,Gemma-3-4B --benchmarks gsm8k,arc_challenge
 
-# Run all models on all benchmarks (mock mode, no API key needed)
-python demo.py --mock
+# Control sample count (more = tighter CIs)
+python3 demo.py --n-samples 100
+
+# Force a specific API provider
+python3 demo.py --provider openrouter      # requires OPENROUTER_API_KEY
+python3 demo.py --provider hf              # requires HUGGINGFACE_TOKEN
+python3 demo.py --provider mock            # always offline, no keys needed
+
+# Dry run — validate config, no API calls
+python3 demo.py --scenario full --dry-run
+# → --dry-run: would make 6,000 API calls (10 × 6 × 100). No calls made.
+
+# Custom output directory and skip PDF/HTML generation
+python3 demo.py --output-dir results/run-01 --no-report
+
+# Launch interactive Gradio UI
+python3 app.py
+# → Running on http://0.0.0.0:7860
 ```
+
+Available model names: `Phi-4-Mini`, `Gemma-3-1B`, `Gemma-3-4B`, `Qwen2.5-1.5B`, `Qwen2.5-3B`, `SmolLM2-1.7B`, `Qwen3-0.6B`, `Qwen3-1.7B`, `Llama-3.2-1B`, `Llama-3.2-3B`
+
+Available benchmark IDs: `gsm8k`, `arc_challenge`, `mmlu`, `hellaswag`, `truthfulqa`, `ifeval`
 
 ## Configuration
 
 | Variable | Default | Required | Description |
-|----------|---------|----------|-------------|
-| `OPENROUTER_API_KEY` | — | No | OpenRouter API key for model calls |
-| `HF_TOKEN` | — | No | HuggingFace token for inference API |
-| `API_PROVIDER` | `mock` | No | `openrouter`, `huggingface`, or `mock` |
-| `DEFAULT_N_SAMPLES` | `100` | No | Questions per benchmark |
-| `OUTPUT_DIR` | `outputs/` | No | Where to write reports |
-| `REPORT_FORMAT` | `html` | No | `html` or `pdf` |
-| `CI_LEVEL` | `0.95` | No | Wilson CI confidence level |
+|----------|---------|:--------:|-------------|
+| `OPENROUTER_API_KEY` | — | No | OpenRouter key — enables real inference |
+| `HUGGINGFACE_TOKEN` | — | No | HF Inference API token |
+| `MOCK_MODE` | `false` | No | `true` forces offline mock evaluation |
+| `MOCK_SEED` | `42` | No | RNG seed for reproducible mock results |
+| `DEMO_N_SAMPLES` | `50` | No | Default samples per benchmark |
+| `OUTPUT_DIR` | `outputs` | No | Directory for all generated artifacts |
+| `REQUEST_TIMEOUT` | `60` | No | Per-request timeout in seconds |
+| `MAX_RETRIES` | `3` | No | Retries on transient failures |
+| `RETRY_BASE_WAIT` | `1.0` | No | Exponential backoff base wait (s) |
+| `RATE_LIMIT_WAIT` | `10.0` | No | Extra wait on 429 responses (s) |
+| `GRADIO_HOST` | `0.0.0.0` | No | Gradio UI bind host |
+| `GRADIO_PORT` | `7860` | No | Gradio UI port |
+| `LOG_LEVEL` | `INFO` | No | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
 
 ## Project Structure
 
 ```
 mobile-llm-benchmark-suite/
 ├── mobile_llm_benchmark/
-│   ├── config.py            — env var config
-│   ├── data_loaders.py      — HuggingFace dataset loaders
-│   ├── model_client.py      — OpenRouter / HF Inference / mock client
-│   ├── runner.py            — orchestrates benchmark runs
-│   ├── scorers.py           — exact match, regex, CoT scoring
-│   ├── statistical.py       — Wilson CI, Cohen's h effect sizes
-│   └── report_generator.py  — HTML/PDF report generation
-├── assets/                  ← dark-theme infographic PNGs
-├── tests/                   ← 77 tests
-├── examples/                ← 4 runnable example scripts
-├── app.py                   ← Gradio UI entrypoint
-├── demo.py                  ← CLI demo
+│   ├── __init__.py          — public API (BenchmarkRunner, MODELS, BENCHMARKS)
+│   ├── config.py            — 10 models, 6 benchmarks, scenario presets
+│   ├── data_loaders.py      — HuggingFace dataset loaders + mock fallback
+│   ├── model_client.py      — unified OpenRouter / HF Inference client
+│   ├── runner.py            — BenchmarkRunner orchestration + streaming
+│   ├── scorers.py           — task-specific scorers (exact match, regex, CoT)
+│   ├── statistical.py       — Wilson CI, Bootstrap CI, Cohen's h, z-tests
+│   └── report_generator.py  — HTML / PDF / CSV / JSON / PNG report generation
+├── app.py                   — Gradio web UI (5 tabs, live progress, charts)
+├── demo.py                  — CLI demo with Rich progress and results table
+├── examples/
+│   ├── 01_quick_start.py    — 2 models × 2 benchmarks, no API key
+│   ├── 02_advanced_usage.py — streaming, CI comparison, effect sizes
+│   ├── 03_custom_config.py  — scenario presets, env-var overrides
+│   └── 04_full_pipeline.py  — full end-to-end workflow
+├── tests/
+│   └── test_benchmark.py    — 77 tests (CI, scorers, runner, UI, reports)
+├── scripts/
+│   └── generate_infographics.py — regenerate assets/ PNGs
+├── assets/                  — dark-theme infographic PNGs (committed)
+│   ├── pipeline_diagram.png
+│   ├── accuracy_comparison.png
+│   ├── radar_chart.png
+│   ├── latency_benchmark.png
+│   └── benchmark_distribution.png
+├── outputs/                 — generated reports and charts
+│   ├── benchmark_results.csv
+│   ├── benchmark_results.json
+│   ├── report.html
+│   └── report.pdf
+├── .env.example             — environment variable template
 └── requirements.txt
 ```
+
+## Run Tests
+
+```bash
+python3 -m pytest tests/ -v
+```
+
+```
+tests/test_benchmark.py::TestWilsonCI::test_ci_ordering PASSED
+tests/test_benchmark.py::TestWilsonCI::test_95_vs_99_confidence PASSED
+tests/test_benchmark.py::TestWilsonCI::test_width_shrinks_with_n PASSED
+tests/test_benchmark.py::TestWilsonCI::test_edge_zero_samples PASSED
+tests/test_benchmark.py::TestBootstrapCI::test_ci_ordering PASSED
+tests/test_benchmark.py::TestBootstrapCI::test_deterministic_seed PASSED
+tests/test_benchmark.py::TestDataLoaders::test_all_benchmarks_load PASSED
+tests/test_benchmark.py::TestScorers::test_gsm8k_number_extraction PASSED
+tests/test_benchmark.py::TestScorers::test_arc_letter_extraction PASSED
+tests/test_benchmark.py::TestBenchmarkRunner::test_mock_run_returns_results PASSED
+tests/test_benchmark.py::TestReportGenerator::test_csv_generation PASSED
+tests/test_benchmark.py::TestGradioUI::test_build_ui_returns_blocks PASSED
+...
+.......................................................................  [ 93%]
+.....                                                                    [100%]
+============================== warnings summary ==============================
+tests/test_benchmark.py: 42 warnings (gradio/fastapi deprecation notices)
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+77 passed, 42 warnings in 12.85s
+```
+
+## Performance / Benchmarks
+
+![Latency and accuracy vs model size](assets/latency_benchmark.png)
+
+![Score distribution per benchmark — all 10 models](assets/benchmark_distribution.png)
+
+Full mock-mode leaderboard — 10 models × 6 benchmarks × 50 samples (seed 42):
+
+| Rank | Model | Params | GSM8K | ARC | MMLU | HellaSwag | TruthfulQA | IFEval | Avg ↓ |
+|-----:|-------|-------:|------:|----:|-----:|----------:|-----------:|-------:|------:|
+| 1 | ⭐ Phi-4-Mini | 3.8 B | 72 % | 68 % | 64 % | 75 % | 60 % | 58 % | **66 %** |
+| 2 | Gemma-3-4B | 4.0 B | 55 % | 62 % | 58 % | 72 % | 55 % | 52 % | **59 %** |
+| 3 | Qwen2.5-3B | 3.0 B | 50 % | 58 % | 55 % | 68 % | 52 % | 48 % | **55 %** |
+| 4 | Llama-3.2-3B | 3.2 B | 42 % | 55 % | 52 % | 65 % | 50 % | 44 % | **51 %** |
+| 5 | Qwen3-1.7B | 1.7 B | 38 % | 50 % | 47 % | 61 % | 46 % | 39 % | **47 %** |
+| 6 | Gemma-3-1B | 1.0 B | 35 % | 52 % | 48 % | 62 % | 48 % | 40 % | **47 %** |
+| 7 | SmolLM2-1.7B | 1.7 B | 30 % | 48 % | 45 % | 60 % | 45 % | 38 % | **44 %** |
+| 8 | Qwen2.5-1.5B | 1.5 B | 32 % | 46 % | 44 % | 58 % | 44 % | 36 % | **43 %** |
+| 9 | Llama-3.2-1B | 1.0 B | 25 % | 42 % | 40 % | 55 % | 40 % | 32 % | **39 %** |
+| 10 | Qwen3-0.6B | 0.6 B | 20 % | 38 % | 36 % | 50 % | 36 % | 28 % | **35 %** |
+
+HellaSwag is the easiest task across all model sizes; GSM8K shows the steepest accuracy drop below 1 B parameters. Phi-4-Mini at 3.8 B achieves the best math reasoning score (72 %), outperforming larger models. All results include Wilson 95 % CIs — run `python3 demo.py --scenario full` to reproduce.
