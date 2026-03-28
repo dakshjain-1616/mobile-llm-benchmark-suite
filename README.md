@@ -4,9 +4,37 @@
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-0%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-77%20passed-brightgreen.svg)](tests/)
 
 > Compare 10 mobile-class LLMs across 6 standard benchmarks with Wilson 95% CI and statistical significance — free, reproducible, and works offline in 30 seconds.
+
+## How It Works
+
+![Benchmark pipeline](assets/pipeline_diagram.png)
+
+The suite fetches benchmark questions from HuggingFace datasets, calls each model via OpenRouter or HuggingFace Inference API, scores answers with task-specific scorers (exact match, regex, chain-of-thought), and computes Wilson 95% CIs with Cohen's h effect sizes for pairwise significance testing — no GPU required.
+
+## Key Results
+
+![Accuracy comparison across mobile LLMs](assets/accuracy_comparison.png)
+
+![Radar chart — multi-benchmark comparison](assets/radar_chart.png)
+
+Simulated results across 6 benchmarks for 10 mobile-class models (1B–4B):
+
+| Model | GSM8K | ARC | MMLU | HellaSwag | Size |
+|-------|-------|-----|------|-----------|------|
+| Phi-4-mini | 72.4% | 68.1% | 61.2% | 74.3% | 3.8B |
+| Gemma-3-4B | 69.8% | 65.4% | 59.7% | 72.1% | 4.0B |
+| Qwen2.5-3B | 64.2% | 61.8% | 57.3% | 69.5% | 3.1B |
+| Llama-3.2-3B | 61.5% | 59.2% | 54.8% | 67.2% | 3.2B |
+| SmolLM3-3B | 58.3% | 56.7% | 51.4% | 64.1% | 3.0B |
+
+## Performance
+
+![Latency benchmark](assets/latency_benchmark.png)
+
+![Benchmark score distribution](assets/benchmark_distribution.png)
 
 ## Install
 
@@ -106,14 +134,47 @@ tests/test_benchmark.py: 20 warnings
 77 passed, 42 warnings in 12.85s
 ```
 
-## Project structure
+## CLI Reference
+
+```bash
+# Run benchmark with specific models and benchmarks
+python demo.py --models phi-4-mini gemma-3-1b --benchmarks gsm8k arc_challenge --n_samples 100
+
+# Launch Gradio UI
+python app.py
+
+# Run all models on all benchmarks (mock mode, no API key needed)
+python demo.py --mock
+```
+
+## Configuration
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `OPENROUTER_API_KEY` | — | No | OpenRouter API key for model calls |
+| `HF_TOKEN` | — | No | HuggingFace token for inference API |
+| `API_PROVIDER` | `mock` | No | `openrouter`, `huggingface`, or `mock` |
+| `DEFAULT_N_SAMPLES` | `100` | No | Questions per benchmark |
+| `OUTPUT_DIR` | `outputs/` | No | Where to write reports |
+| `REPORT_FORMAT` | `html` | No | `html` or `pdf` |
+| `CI_LEVEL` | `0.95` | No | Wilson CI confidence level |
+
+## Project Structure
 
 ```
 mobile-llm-benchmark-suite/
-├── mobile_llm_benchmark/      ← main library
-├── tests/                     ← test suite
-├── examples/                  ← demo scripts
-├── app.py                     ← Gradio UI entrypoint
-├── demo.py                    ← CLI demo entrypoint
+├── mobile_llm_benchmark/
+│   ├── config.py            — env var config
+│   ├── data_loaders.py      — HuggingFace dataset loaders
+│   ├── model_client.py      — OpenRouter / HF Inference / mock client
+│   ├── runner.py            — orchestrates benchmark runs
+│   ├── scorers.py           — exact match, regex, CoT scoring
+│   ├── statistical.py       — Wilson CI, Cohen's h effect sizes
+│   └── report_generator.py  — HTML/PDF report generation
+├── assets/                  ← dark-theme infographic PNGs
+├── tests/                   ← 77 tests
+├── examples/                ← 4 runnable example scripts
+├── app.py                   ← Gradio UI entrypoint
+├── demo.py                  ← CLI demo
 └── requirements.txt
 ```
