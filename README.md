@@ -20,15 +20,18 @@ The suite fetches benchmark questions from HuggingFace datasets, calls each mode
 
 ![Radar chart — multi-benchmark comparison](assets/radar_chart.png)
 
-Simulated results across 6 benchmarks for 10 mobile-class models (1B–4B):
+Simulated results across 6 benchmarks for 12 mobile-class models (0.6B–4B):
 
-| Model | GSM8K | ARC | MMLU | HellaSwag | Size |
-|-------|-------|-----|------|-----------|------|
-| Phi-4-mini | 72.4% | 68.1% | 61.2% | 74.3% | 3.8B |
-| Gemma-3-4B | 69.8% | 65.4% | 59.7% | 72.1% | 4.0B |
-| Qwen2.5-3B | 64.2% | 61.8% | 57.3% | 69.5% | 3.1B |
-| Llama-3.2-3B | 61.5% | 59.2% | 54.8% | 67.2% | 3.2B |
-| SmolLM3-3B | 58.3% | 56.7% | 51.4% | 64.1% | 3.0B |
+| Model | GSM8K | ARC | MMLU | HellaSwag | Size | Released |
+|-------|-------|-----|------|-----------|------|---------|
+| **Qwen3-4B** | **79.4%** | **74.1%** | **70.2%** | **82.3%** | 4B | Apr 2025 |
+| Phi-4-Mini | 72.4% | 68.1% | 65.2% | 78.1% | 3.8B | Jan 2025 |
+| Gemma-3-4B | 65.1% | 64.2% | 60.3% | 75.4% | 4B | Mar 2025 |
+| Falcon3-3B | 58.2% | 62.1% | 56.3% | 73.1% | 3B | Dec 2024 |
+| SmolLM3-3B | 52.1% | 56.4% | 52.2% | 70.3% | 3B | Jun 2025 |
+| Qwen2.5-3B | 60.4% | 61.8% | 57.3% | 69.5% | 3B | Sep 2024 |
+| Qwen3-1.7B | 48.2% | 54.1% | 50.3% | 68.2% | 1.7B | Apr 2025 |
+| Llama-3.2-3B | 55.3% | 58.1% | 53.2% | 67.1% | 3B | Sep 2024 |
 
 ## Performance
 
@@ -92,7 +95,7 @@ runner.generate_report(path="results/report.html")
 
 ## Key features
 
-- Benchmarks 10 mobile-class models (Phi-4-mini, Gemma-3, Qwen2.5, SmolLM, Llama-3.2) across 6 tasks (GSM8K, ARC, MMLU, HellaSwag, TruthfulQA, IFEval)
+- Benchmarks 12 mobile-class models (Qwen3-4B/1.7B/0.6B, Phi-4-Mini, Gemma-3, SmolLM3-3B, Falcon3-3B, Qwen2.5, Llama-3.2) across 6 tasks (GSM8K, ARC, MMLU, HellaSwag, TruthfulQA, IFEval)
 - Computes Wilson 95% Confidence Intervals and Cohen's h effect sizes for statistically valid comparisons
 - Generates publication-ready HTML and PDF reports with radar charts and methodology sections
 - Zero GPU requirement using OpenRouter and HuggingFace Inference APIs with mock mode for offline testing

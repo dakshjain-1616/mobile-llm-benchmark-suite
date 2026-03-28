@@ -76,7 +76,7 @@ Available models: {', '.join(model_names)}
         "--models",
         default=None,
         metavar="M1,M2,...",
-        help="Comma-separated model names (default: Llama-3.2-1B,SmolLM2-1.7B,Qwen2.5-3B)",
+        help="Comma-separated model names (default: Llama-3.2-1B,SmolLM3-3B,Qwen2.5-3B)",
     )
     parser.add_argument(
         "--benchmarks",
@@ -141,7 +141,7 @@ def main() -> None:
         demo_model_names = (
             [m.strip() for m in args.models.split(",")]
             if args.models
-            else ["Llama-3.2-1B", "SmolLM2-1.7B", "Qwen2.5-3B"]
+            else ["Llama-3.2-1B", "SmolLM3-3B", "Qwen2.5-3B"]
         )
         demo_bench_ids = (
             [b.strip() for b in args.benchmarks.split(",")]

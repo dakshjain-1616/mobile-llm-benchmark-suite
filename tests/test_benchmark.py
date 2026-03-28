@@ -918,7 +918,7 @@ class TestDemoIntegration:
         from mobile_llm_benchmark.config import MODELS, BENCHMARKS
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            demo_models = [m for m in MODELS if m["name"] in ("Llama-3.2-1B", "SmolLM2-1.7B", "Qwen2.5-3B")]
+            demo_models = [m for m in MODELS if m["name"] in ("Llama-3.2-1B", "SmolLM3-3B", "Qwen2.5-3B")]
             bench_ids = [b["id"] for b in BENCHMARKS]
 
             runner = BenchmarkRunner(mock_mode=True)

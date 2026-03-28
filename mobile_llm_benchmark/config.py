@@ -40,13 +40,14 @@ MODELS = [
         "params": "3B",
         "provider": "hf",
     },
+    # SmolLM3-3B — HuggingFace's newest compact model (Jun 2025), replaces SmolLM2
     {
-        "id": os.getenv("MODEL_SMOLLM2", "HuggingFaceTB/SmolLM2-1.7B-Instruct"),
-        "name": "SmolLM2-1.7B",
-        "params": "1.7B",
+        "id": os.getenv("MODEL_SMOLLM3", "HuggingFaceTB/SmolLM3-3B"),
+        "name": "SmolLM3-3B",
+        "params": "3B",
         "provider": "hf",
     },
-    # Qwen3-0.6B — latest ultra-compact Qwen3 model (HF trending)
+    # Qwen3-0.6B — ultra-compact Qwen3 (Apr 2025)
     {
         "id": os.getenv("MODEL_QWEN3_06B", "Qwen/Qwen3-0.6B"),
         "name": "Qwen3-0.6B",
@@ -69,6 +70,20 @@ MODELS = [
         "id": os.getenv("MODEL_QWEN3_17B", "Qwen/Qwen3-1.7B"),
         "name": "Qwen3-1.7B",
         "params": "1.7B",
+        "provider": "hf",
+    },
+    # Qwen3-4B — thinking model (Apr 2025), best 4B reasoning capability
+    {
+        "id": os.getenv("MODEL_QWEN3_4B", "Qwen/Qwen3-4B"),
+        "name": "Qwen3-4B",
+        "params": "4B",
+        "provider": "hf",
+    },
+    # Falcon3-3B — TII Falcon3 series (Dec 2024)
+    {
+        "id": os.getenv("MODEL_FALCON3_3B", "tiiuae/Falcon3-3B-Instruct"),
+        "name": "Falcon3-3B",
+        "params": "3B",
         "provider": "hf",
     },
 ]
@@ -159,7 +174,7 @@ SCENARIO_PRESETS: dict[str, dict] = {
         "emoji": "⚡",
         "benchmarks": ["arc_challenge", "mmlu"],
         "n_samples": 20,
-        "models": ["Llama-3.2-1B", "SmolLM2-1.7B", "Qwen2.5-3B"],
+        "models": ["Llama-3.2-1B", "SmolLM3-3B", "Qwen3-1.7B"],
     },
     "math": {
         "name": "Math & Reasoning",
@@ -167,7 +182,7 @@ SCENARIO_PRESETS: dict[str, dict] = {
         "emoji": "🔢",
         "benchmarks": ["gsm8k", "arc_challenge", "mmlu"],
         "n_samples": 50,
-        "models": ["Phi-4-Mini", "Gemma-3-4B", "Qwen2.5-3B", "Llama-3.2-3B"],
+        "models": ["Phi-4-Mini", "Qwen3-4B", "Gemma-3-4B", "Llama-3.2-3B"],
     },
     "language": {
         "name": "Language Understanding",
@@ -175,7 +190,7 @@ SCENARIO_PRESETS: dict[str, dict] = {
         "emoji": "📚",
         "benchmarks": ["hellaswag", "truthfulqa", "ifeval"],
         "n_samples": 50,
-        "models": ["Phi-4-Mini", "Gemma-3-4B", "Qwen3-1.7B", "Llama-3.2-3B"],
+        "models": ["Phi-4-Mini", "Qwen3-4B", "Qwen3-1.7B", "Falcon3-3B"],
     },
     "small_models": {
         "name": "Tiny Models (<1B)",
@@ -280,6 +295,33 @@ MODEL_CAPABILITIES: dict[str, dict[str, float]] = {
         "hellaswag": 0.68,
         "truthfulqa": 0.46,
         "ifeval": 0.44,
+    },
+    # Qwen3-4B — thinking model, best-in-class 4B reasoning (Apr 2025)
+    "Qwen3-4B": {
+        "gsm8k": 0.79,
+        "arc_challenge": 0.74,
+        "mmlu": 0.70,
+        "hellaswag": 0.82,
+        "truthfulqa": 0.60,
+        "ifeval": 0.70,
+    },
+    # SmolLM3-3B — HuggingFace Jun 2025, strong instruction-following
+    "SmolLM3-3B": {
+        "gsm8k": 0.52,
+        "arc_challenge": 0.56,
+        "mmlu": 0.52,
+        "hellaswag": 0.70,
+        "truthfulqa": 0.48,
+        "ifeval": 0.55,
+    },
+    # Falcon3-3B — TII Dec 2024, competitive with Qwen2.5-3B
+    "Falcon3-3B": {
+        "gsm8k": 0.58,
+        "arc_challenge": 0.62,
+        "mmlu": 0.56,
+        "hellaswag": 0.73,
+        "truthfulqa": 0.50,
+        "ifeval": 0.54,
     },
 }
 
